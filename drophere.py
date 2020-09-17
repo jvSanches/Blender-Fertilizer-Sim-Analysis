@@ -9,14 +9,14 @@ def timeDistribution(T,S, discrete_time_step):
     S_ = [i for i in S]
     time_step = 0.01
     discrete_period = int(discrete_time_step / time_step)
-    sim_frames = 1500
+    sim_frames = 2000
     accumulated_volume = []
     for i in range(0,sim_frames, discrete_period):
         step_volume = 0
         eval_time = i
         for j in reversed(range(len(T_))):
             if T_[j] < eval_time:
-                step_volume += S_[j]**3
+                step_volume += (S_[j]/10)**3*3.1415
                 del S_[j]
                 del T_[j]
         accumulated_volume.append(step_volume)
@@ -46,7 +46,12 @@ def getDistribution(X,S,step_size):
 def calc_cv(diff_volume, samples):
     measurements = len(diff_volume)
     cv = measurements * [None]
-    sammples = 5
+    if measurements < samples:
+        print("Not enough samples for cv calculation... Exiting")
+        input()
+        quit()
+        return cv 
+    samples = int(samples/2)
     for i in range(samples, measurements-samples):
         stddev = numpy.std(diff_volume[i-samples:i+samples])
         mean = numpy.mean(diff_volume[i-samples : i+samples])
@@ -79,38 +84,46 @@ def generate_plot(droppedFile, show_result = 0):
         Z.append(float(splitvalues[2]))
         S.append(float(splitvalues[3]))
         T.append(float(splitvalues[4]))
-        Xabs.append([T[-1]*18 + X[-1]])
-        
-
+        if T[-1] <= 2000:
+            Xabs.append(T[-1]*18 + X[-1])
+        else:
+            Xabs.append(numpy.mean(X))
+            S[-1] = 0
+            
+    
     plt.figure()
+    plt.subplot(411)
     plotscale = 0.5
     plt.scatter(Xabs,Y,s=[i * plotscale for i in S], edgecolors='none')
-    # plt.axis([min(Xabs), max(Xabs), -300, 300])
     plt.ylim(-300,300)
     plt.title("Distribuição")
-    if show_result: 
-        plt.show()
-    else:
-        plt.savefig(droppedFile[:-4]+"_distribution.png", dpi=1200)
-    plt.figure()
-    plt.subplot(311)
+    plt.xlim(0,36000)
+    # if show_result: 
+    #     plt.show()
+    # else:
+    #     plt.savefig(droppedFile[:-4]+"_distribution.png", dpi=1200)
+    # plt.figure()
+    plt.subplot(412)
 
-    diff_volume = timeDistribution(T,S, 0.5)
+    diff_volume = timeDistribution(T,S, 0.1)
 
     volume = [sum(diff_volume[0:i]) for i in range(len(diff_volume))]
     plt.plot(volume)
     plt.title("Volume dosado")
+    plt.ylabel("[cm^3]")
+    plt.xlim(0, 200)
 
-    plt.subplot(312)
+    plt.subplot(413)
     # diff_volume = getDistribution(X,S,10)
     plt.plot(diff_volume, 'green')
-    # plt.xlim(0, len(diff_volume))
+    plt.xlim(0, 200)
     plt.title("Variação volumétrica")
-    plt.subplot(313)
-    cvs = calc_cv(diff_volume,5)
+    plt.subplot(414)
+    cvs = calc_cv(diff_volume,100)
     plt.plot(cvs, 'red')
-    plt.xlim(0, len(cvs))
     plt.title("CV")
+    plt.xlim(0, 200)
+
     cv_min = getMin(cvs)
     plt.text(0.1,cv_min+0.1, "Min cv: %.3f" %(cv_min))
     plt.hlines(cv_min, 0, len(cvs), linestyles= 'dashed')
@@ -131,6 +144,6 @@ if len(sys.argv) > 1:
             generate_plot(filename)
             print("Done. Image generated \n")
 else:
-    filename = "hellix 120 16-14-15.txt"
+    filename = "11-00-56.txt"
     generate_plot(filename, 1)
 
