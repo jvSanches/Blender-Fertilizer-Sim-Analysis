@@ -85,7 +85,7 @@ def generate_plot(droppedFile, show_result = 0):
     if log_ver != blender_logger_ver:
         wrong_logger_version_message = "Versão do logger incorreta"
     
-    collumns = lines[1].split(sep= ',')
+    #collumns = lines[1].split(sep= ',')
     for line in lines[2:]:
         splitvalues = line.split(sep= ',')
         X.append(float(splitvalues[0]))
