@@ -60,11 +60,13 @@ def prepare_sim():
     dose = 100 #kg/ha
     global last_dose
     last_dose = dose
-    rotor_rpm = 0.0001737 * dose * rotor_volume
-    print(rotor_volume, "#######")
+    moving_speed = 5 #Km/h
+    row_spacing = 0.5 #m
+
+
+    rotor_rpm = 10/6 * dose * row_spacing * moving_speed/rotor_volume
     global last_rpm
     last_rpm = rotor_rpm
-    print(rotor_rpm, "#######")
     action_name = 'RotorsAction'
     rad_min = rotor_rpm * 6.2832
     # Find the appropriate action
@@ -135,7 +137,7 @@ def clear_sim():
         
 def log_sim():
     global last_rpm
-    logger_ver = 0.1
+    logger_ver = 0.2
     print("Logging sim")
     # Dependancy graph
     degp = bpy.context.evaluated_depsgraph_get()

@@ -12,6 +12,28 @@ blender_density = 1 #g/cm^3
 blender_simulation_time = blender_frames * blender_timestep
 blender_logger_ver = 0.2
 
+comparison_volumes=[]
+comparison_diferentials=[]
+comparison_min_cvs=[]
+comparison_names=[]
+
+def getComparison(samples):
+    samples = int(samples/2)
+    nSims = len(comparison_names)
+    plt.figure()
+    for i in range(nSims):
+        mid_sample = comparison_min_cvs[i]
+        label_ = comparison_names[i] + " dv/dt: %.2f"%(numpy.mean(comparison_diferentials[i][mid_sample-samples:mid_sample+samples]))
+        plt.plot(comparison_volumes[i][mid_sample-samples:mid_sample+samples], label = label_ )
+    
+    plt.title("Volume dosado")
+    plt.ylabel("[cm^3]")
+    plt.xlabel("Amostras")
+    plt.legend(loc='upper left')
+    plt.savefig("%d configurations comparison.pdf" %(nSims), dpi=1200)
+
+
+
 def getVolumeDiferential(T,S,discrete_time_step, simulation_time_step, frames):
     ###Converts dying times to volume increment for each timestep
 
@@ -105,6 +127,10 @@ def generate_plot(droppedFile, show_result = 0):
     cv_samples = 100
     cvs = calc_cv(diff_volume,cv_samples)
     cv_min = getMin(cvs)
+    comparison_volumes.append(total_volume)
+    comparison_diferentials.append(diff_volume)
+    comparison_min_cvs.append(cvs.index(cv_min))
+    comparison_names.append("%s + %s"%(log_rotor, log_calha))
 
     ###Generates the plot
     plt.figure(figsize=(6, 10))
@@ -147,9 +173,10 @@ def generate_plot(droppedFile, show_result = 0):
     if show_result: 
         plt.show()
     else:
+        
         plt.savefig(droppedFile[:-4]+"_analysis.pdf", dpi=1200)
     
-
+    
 
 if len(sys.argv) > 1:
     for i in range(1, len(sys.argv)):
@@ -158,7 +185,11 @@ if len(sys.argv) > 1:
             print("Starting analysis...")            
             generate_plot(filename)
             print("Done. PDF generated \n")
+    print("Building comparison...") 
+    getComparison(100)
+    print("Done. PDF generated \n")
 else:
-    filename = "R2-9x120d(148) + H0.txt"
+    filename = "eee.txt"
     generate_plot(filename, 1)
+    getComparison(100)
 
