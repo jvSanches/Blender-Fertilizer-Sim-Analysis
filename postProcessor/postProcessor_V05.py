@@ -7,7 +7,7 @@ from tkinter import filedialog
 from datetime import datetime
 
 ##Simulation settings
-blender_frames =  2000
+blender_frames =  6000
 blender_timestep = 0.01
 blender_groud_speed = 18 #m/s
 blender_dose = 100 #kg/ha
@@ -25,7 +25,7 @@ def getComparison(samples):
     nSims = len(comparison_names)
     plt.figure()
     for i in range(nSims):
-        mid_sample = comparison_min_cvs[i]
+        mid_sample = int(len(comparison_diferentials[i])/2)
         label_ = comparison_names[i] + " dv/dt: %.2f"%(numpy.mean(comparison_diferentials[i][mid_sample-samples:mid_sample+samples]))
         data_to_plot = comparison_volumes[i][mid_sample-samples:mid_sample+samples]
         offset = data_to_plot[0]
@@ -129,7 +129,7 @@ def generate_plot(droppedFile, show_result = 0):
     discrete_time_step = 0.1
     diff_volume = getVolumeDiferential(T,S, discrete_time_step,blender_timestep, blender_frames)
     total_volume = integrateVolumeDiferential(diff_volume)
-    cv_samples = 100
+    cv_samples = 300
     cvs = calc_cv(diff_volume,cv_samples)
     cv_min = getMin(cvs)
     comparison_volumes.append(total_volume)
@@ -148,7 +148,7 @@ def generate_plot(droppedFile, show_result = 0):
     plt.title("Distribuição")
     plt.xlim(0, blender_groud_speed*blender_simulation_time)
     plt.xlabel("Distância [m]")
-    plt.xlabel("[mm]")
+    plt.ylabel("[mm]")
 
     plt.subplot(412)    
     plt.plot(numpy.linspace(0,blender_simulation_time,len(total_volume)), total_volume)
@@ -172,7 +172,7 @@ def generate_plot(droppedFile, show_result = 0):
     plt.xlim(0, len(cvs))
     plt.xlabel("Intervalos")
 
-    plt.text(0.1,cv_min+0.1, "Min cv: %.3f" %(cv_min))
+    plt.text(0.1,cv_min, "Min cv: %.3f" %(cv_min))
     plt.hlines(cv_min, 0, len(cvs), linestyles= 'dashed')
     plt.tight_layout(pad=1)
     if show_result: 
@@ -196,8 +196,9 @@ for i in range(len(files)):
         print("Starting analysis...")            
         generate_plot(filename)
         print("Done. PDF generated \n")
-print("Building comparison...") 
+
 if len(comparison_names) > 1:
-    getComparison(100)
-print("Done. PDF generated \n")
+    print("Building comparison...") 
+    getComparison(300)
+    print("Done. PDF generated \n")
 
