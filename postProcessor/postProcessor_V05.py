@@ -13,7 +13,7 @@ blender_groud_speed = 18 #m/s
 blender_dose = 100 #kg/ha
 blender_density = 1 #g/cm^3
 blender_simulation_time = blender_frames * blender_timestep
-blender_logger_ver = 0.3
+blender_logger_ver = 0.5
 
 comparison_volumes=[]
 comparison_diferentials=[]

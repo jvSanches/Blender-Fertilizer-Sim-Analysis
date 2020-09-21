@@ -134,7 +134,7 @@ def log_sim():
     date_time = datetime.now().strftime("%m_%d_%Y, %H-%M-%S")
     last_rpm = bpy.data.scenes[0]["rotor_rpm"] 
     last_dose = bpy.data.scenes[0]["dose"]
-    logger_ver = 0.3
+    logger_ver = 0.5
     print("Logging sim")
     # Dependancy graph
     degp = bpy.context.evaluated_depsgraph_get()
