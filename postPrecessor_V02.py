@@ -2,6 +2,8 @@ import sys
 import os
 import matplotlib.pyplot as plt
 import numpy
+import tkinter as tk
+from tkinter import filedialog
 
 ##Simulation settings
 blender_frames =  2000
@@ -105,7 +107,7 @@ def generate_plot(droppedFile, show_result = 0):
     log_ver = float(header[4].split(sep= ':')[-1])
     wrong_logger_version_message = " "
     if log_ver != blender_logger_ver:
-        wrong_logger_version_message = "Versão do logger incorreta"
+        wrong_logger_version_message = "Versão do logger incorreta \n"
     
     #collumns = lines[1].split(sep= ',')
     for line in lines[2:]:
@@ -169,27 +171,29 @@ def generate_plot(droppedFile, show_result = 0):
 
     plt.text(0.1,cv_min+0.1, "Min cv: %.3f" %(cv_min))
     plt.hlines(cv_min, 0, len(cvs), linestyles= 'dashed')
-    plt.tight_layout(pad=0.5)
+    plt.tight_layout(pad=1)
     if show_result: 
         plt.show()
     else:
         
         plt.savefig(droppedFile[:-4]+"_analysis.pdf", dpi=1200)
     
-    
-
 if len(sys.argv) > 1:
-    for i in range(1, len(sys.argv)):
-        filename = sys.argv[i]
-        if filename[-3:] == "txt":
-            print("Starting analysis...")            
-            generate_plot(filename)
-            print("Done. PDF generated \n")
-    print("Building comparison...") 
-    getComparison(100)
-    print("Done. PDF generated \n")
+    files = sys.argv[1:]
 else:
-    filename = "eee.txt"
-    generate_plot(filename, 1)
-    getComparison(100)
+    root = tk.Tk()
+    root.withdraw()
+
+    file_path = filedialog.askopenfilenames(initialdir=os.path.abspath(os.getcwd()))
+    files = [a for a in file_path]
+
+for i in range(len(files)):
+    filename = files[i]
+    if filename[-3:] == "txt":
+        print("Starting analysis...")            
+        generate_plot(filename)
+        print("Done. PDF generated \n")
+print("Building comparison...") 
+getComparison(100)
+print("Done. PDF generated \n")
 

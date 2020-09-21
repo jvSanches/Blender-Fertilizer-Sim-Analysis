@@ -1,5 +1,6 @@
 import bpy
 import os
+from datetime import datetime
 
 def ShowMessageBox(message = "", title = "Message Box", icon = 'INFO'):
 
@@ -58,14 +59,13 @@ def prepare_sim():
 
     #Dose must be set here
     dose = 100 #kg/ha
-    global last_dose
-    last_dose = dose
+    bpy.data.scenes[0]["dose"] = dose
     moving_speed = 5 #Km/h
     row_spacing = 0.5 #m
 
 
     rotor_rpm = 10/6 * dose * row_spacing * moving_speed/rotor_volume
-    global last_rpm
+    bpy.data.scenes[0]["rotor_rpm"] = rotor_rpm
     last_rpm = rotor_rpm
     action_name = 'RotorsAction'
     rad_min = rotor_rpm * 6.2832
@@ -75,8 +75,6 @@ def prepare_sim():
     while len(fc.keyframe_points)>1:
         fc.keyframe_points.remove(fc.keyframe_points[-1])
     fc.keyframe_points.insert(6000, rad_min)
-
-
 
     bpy.ops.ptcache.free_bake_all()
     bpy.ops.object.select_pattern(pattern='Emitter', extend=False)
@@ -131,13 +129,12 @@ def clear_sim():
 
     bpy.data.scenes[0]["sim_case_hopper"] = sim_case_hopper  
 
-   
-
-
         
 def log_sim():
-    global last_rpm
-    logger_ver = 0.2
+    date_time = datetime.now().strftime("%m_%d_%Y, %H-%M-%S")
+    last_rpm = bpy.data.scenes[0]["rotor_rpm"] 
+    last_dose = bpy.data.scenes[0]["dose"]
+    logger_ver = 0.3
     print("Logging sim")
     # Dependancy graph
     degp = bpy.context.evaluated_depsgraph_get()
@@ -171,11 +168,21 @@ def log_sim():
     sim_case_hopper = bpy.data.scenes[0]["sim_case_hopper"]
 
     logname = rotors[sim_case_rotor].name + " + " + hoppers[sim_case_hopper].name
+    num = 1
+
+    while logname in os.listdir():
+        if num > 1:
+            logname[-1] = str(num)
+        else:
+            logname += str(num)
+        logname += 1
+
     file_location = os.getcwd()
+    
     filename = file_location + "\\" + logname + ".txt"
 
     logfile = open(filename,"w")
-    line = "Rotor: %s, Hopper: %s, RPM: %f, Dose: %f, Logger_Version: %s\n" %(rotors[sim_case_rotor].name, hoppers[sim_case_hopper].name,last_rpm,last_dose,logger_ver)
+    line = "Rotor: %s, Hopper: %s, RPM: %f, Dose: %f, Logger_Version: %s, Time: %s\n" %(rotors[sim_case_rotor].name, hoppers[sim_case_hopper].name,last_rpm,last_dose,logger_ver, date_time)
     logfile.write(line)    
     line = "x, y, z, size, die_time \n"
     logfile.write(line)
