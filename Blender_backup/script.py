@@ -167,15 +167,7 @@ def log_sim():
     sim_case_rotor = bpy.data.scenes[0]["sim_case_rotor"]
     sim_case_hopper = bpy.data.scenes[0]["sim_case_hopper"]
 
-    logname = rotors[sim_case_rotor].name + " + " + hoppers[sim_case_hopper].name
-    num = 1
-
-    while logname in os.listdir():
-        if num > 1:
-            logname[-1] = str(num)
-        else:
-            logname += str(num)
-        logname += 1
+    logname = rotors[sim_case_rotor].name + " + " + hoppers[sim_case_hopper].name + " at " + date_time
 
     file_location = os.getcwd()
     
