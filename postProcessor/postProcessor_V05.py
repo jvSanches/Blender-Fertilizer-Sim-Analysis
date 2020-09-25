@@ -202,3 +202,5 @@ if len(comparison_names) > 1:
     getComparison(300)
     print("Done. PDF generated \n")
 
+
+
